@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Download is Starting</title>
+  <!-- Using Tailwind CSS for a clean look -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom font for a better look */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+  <!-- The main container for the message -->
+  <div id="message-container" class="bg-white p-8 rounded-xl shadow-lg text-center max-w-sm w-full transition-transform transform duration-500 ease-out scale-100">
+    <svg class="mx-auto h-12 w-12 text-blue-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+    <h1 class="mt-4 text-xl font-bold text-gray-900">Download Starting...</h1>
+    <p class="mt-2 text-sm text-gray-500">
+      If your download doesn't start automatically, please check your browser settings.
+    </p>
+  </div>
+
+  <script>
+    // This function will handle the entire download and close logic
+    function initiateDownloadAndClose() {
+      // Get the URL parameters from the current page's URL
+      const urlParams = new URLSearchParams(window.location.search);
+      // Get the value of the 'file' parameter
+      const fileName = urlParams.get('file');
+
+      // Check if a file name was provided AND it's not 'index.html'
+      if (fileName && fileName.toLowerCase() !== 'index.html') {
+        // Construct the full download URL.
+        const fileUrl = `${window.location.protocol}//${window.location.host}/${fileName}`;
+
+        // Create an invisible anchor tag (link)
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        document.body.appendChild(link);
+
+        // Set the href to the constructed file URL
+        link.href = fileUrl;
+
+        // Set the download attribute with the file name.
+        link.download = fileName;
+
+        // Programmatically click the link to trigger the download
+        link.click();
+
+        // After a small delay, remove the link from the document
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 500); // 500ms should be enough
+
+        // A small delay before closing the window, to ensure the download dialog has a chance to appear.
+        setTimeout(() => {
+          // This will attempt to close the window/tab.
+          // Note: window.close() only works if the page was opened via script (e.g., window.open()).
+          // If the user navigates directly, the browser will block this.
+          window.close();
+        }, 1500); // 1.5 seconds delay
+
+      } else {
+        // If no file name is provided or it's 'index.html', display an error message
+        const messageContainer = document.getElementById('message-container');
+        messageContainer.innerHTML = `
+          <svg class="mx-auto h-12 w-12 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h1 class="mt-4 text-xl font-bold text-gray-900">Download Error</h1>
+          <p class="mt-2 text-sm text-gray-500">
+            A valid file name was not specified, or the requested file cannot be downloaded.
+          </p>
+        `;
+      }
+    }
+
+    // Call the function when the page loads
+    window.onload = initiateDownloadAndClose;
+  </script>
+</body>
+</html>
